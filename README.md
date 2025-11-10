@@ -8,27 +8,20 @@ Aplikace umožní prohlížet, přidávat a spravovat nabídky automobilů pomoc
 ## 🧩 Použité technologie
 
 ### **Frontend**
-- **React.js** – knihovna pro tvorbu uživatelského rozhraní  
-- **JavaScript**
 - **HTML**
-- **CSS**  
+- **CSS**
+- **Tailwind**
+- **Bootstrap**
+- **GSAP**
+- **Javascript**  
 
 ### **Backend**
-- **Node.js + Express.js** – REST API server  
-- **MongoDB** – databáze pro ukládání dat o autech  
-- **Mongoose** – ORM pro komunikaci s MongoDB  
+- **Python**
+- **MYSQL**
 
 ### **Další nástroje**
 - **Git + GitHub** – verzování a spolupráce  
-- **Postman** – testování API  
 - **VS Code** – vývojové prostředí  
 
----
 
-## ⚙️ Spuštění projektu
 
-### Backend
-```bash
-cd backend
-npm install
-node server.js
