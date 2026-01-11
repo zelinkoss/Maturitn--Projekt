@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <title>Prodat vůz | Autobazar</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: { dark: '#1a1a1a', accent: '#a78bfa', btn: '#9f9ff8' },
+                    fontFamily: { sans: ['Poppins', 'sans-serif'] }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style> 
+        body { background-color: #f8f9fa; } 
+        .custom-radio { accent-color: #1a1a1a; }
+        .drag-active { border-color: #a78bfa !important; background-color: #f3f0ff !important; }
+    </style>
+</head>
+<body class="text-gray-800 font-sans min-h-screen flex flex-col">
+    <header class="bg-white py-6 px-6 border-b border-gray-200 sticky top-0 z-50">
+        <nav class="container mx-auto max-w-5xl flex justify-between items-center">
+            <a href="{{ url_for('index') }}" class="text-xl font-bold text-accent uppercase tracking-widest">Autobazar</a>
+            <div class="flex items-center space-x-6 text-sm font-semibold uppercase tracking-wide">
+                <a href="{{ url_for('inzeraty') }}" class="text-gray-500 hover:text-black transition flex items-center"><i class="fa-solid fa-times mr-2"></i> Zrušit</a>
+            </div>
+        </nav>
+    </header>
+
+    <main class="flex-grow container mx-auto py-12 px-6 max-w-4xl">
+        <div class="bg-white p-8 md:p-12 rounded-lg shadow-sm">
+            <h1 class="text-2xl font-bold text-dark uppercase tracking-widest mb-2">Nový inzerát</h1>
+            <p class="text-sm text-gray-500 mb-8">Vyplňte kompletní specifikaci vozu.</p>
+            
+            <form action="{{ url_for('pridat') }}" method="POST" enctype="multipart/form-data" class="space-y-8" id="upload-form">
+                
+                <div>
+                    <label class="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Fotografie</label>
+                    <div id="drop-zone" class="flex flex-col items-center justify-center w-full h-48 border-2 border-gray-200 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100 transition relative">
+                        <div class="flex flex-col items-center justify-center text-gray-400 pointer-events-none">
+                            <i class="fa-solid fa-images text-3xl mb-3"></i>
+                            <p class="text-sm">Klikněte nebo přetáhněte fotky sem</p>
+                        </div>
+                        <input type="file" id="file-input" multiple class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
+                    </div>
+                    <div id="preview-container" class="grid grid-cols-4 md:grid-cols-6 gap-4 mt-4"></div>
+                    <input type="file" name="obrazky" id="final-input" multiple class="hidden">
+                </div>
+
+                <h3 class="font-bold text-sm uppercase border-b pb-2">Základní údaje</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div><label class="text-xs font-bold text-gray-400 uppercase block mb-1">Značka</label><select name="znacka" class="w-full border p-2 rounded text-sm bg-gray-50"><option>Škoda</option><option>VW</option><option>BMW</option><option>Audi</option><option>Mercedes</option><option>Porsche</option><option>Ford</option></select></div>
+                    <div><label class="text-xs font-bold text-gray-400 uppercase block mb-1">Model</label><input type="text" name="model" placeholder="Např. Octavia" required class="w-full border p-2 rounded text-sm bg-gray-50"></div>
+                    <div><label class="text-xs font-bold text-gray-400 uppercase block mb-1">Karoserie</label><select name="kategorie" class="w-full border p-2 rounded text-sm bg-gray-50"><option value="SUV">SUV</option><option value="Sedan">Sedan</option><option value="Combi">Combi</option><option value="Sport">Sport</option><option value="Van">Van</option></select></div>
+                    <div><label class="text-xs font-bold text-gray-400 uppercase block mb-1">Cena (Kč)</label><input type="number" name="cena" required class="w-full border p-2 rounded text-sm bg-gray-50"></div>
+                </div>
+
+                <h3 class="font-bold text-sm uppercase border-b pb-2 pt-4">Technické parametry</h3>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div><label class="text-xs font-bold text-gray-400 uppercase block mb-1">Rok</label><input type="number" name="rok" required class="w-full border p-2 rounded text-sm bg-gray-50"></div>
+                    <div><label class="text-xs font-bold text-gray-400 uppercase block mb-1">Najeto (km)</label><input type="number" name="km" required class="w-full border p-2 rounded text-sm bg-gray-50"></div>
+                    <div><label class="text-xs font-bold text-gray-400 uppercase block mb-1">Výkon (kW)</label><input type="number" name="vykon" class="w-full border p-2 rounded text-sm bg-gray-50"></div>
+                    <div><label class="text-xs font-bold text-gray-400 uppercase block mb-1">Objem (např 2.0 TDI)</label><input type="text" name="objem" placeholder="2.0 TDI" class="w-full border p-2 rounded text-sm bg-gray-50"></div>
+                    <div><label class="text-xs font-bold text-gray-400 uppercase block mb-1">Spotřeba (l)</label><input type="text" name="spotreba" placeholder="6.5" class="w-full border p-2 rounded text-sm bg-gray-50"></div>
+                    <div><label class="text-xs font-bold text-gray-400 uppercase block mb-1">Emisní norma</label><input type="text" name="emise" placeholder="EURO 6" class="w-full border p-2 rounded text-sm bg-gray-50"></div>
+                    <div class="md:col-span-2"><label class="text-xs font-bold text-gray-400 uppercase block mb-1">Převodovka</label><select name="prevodovka" class="w-full border p-2 rounded text-sm bg-gray-50"><option>Manuální</option><option>Automatická</option></select></div>
+                </div>
+                
+                <div class="py-2">
+                    <label class="text-xs font-bold text-gray-400 uppercase block mb-2">Palivo</label>
+                    <div class="flex gap-4">
+                        <label class="flex items-center"><input type="radio" name="palivo" value="Benzín" checked class="custom-radio mr-2"><span class="text-sm">Benzín</span></label>
+                        <label class="flex items-center"><input type="radio" name="palivo" value="Nafta" class="custom-radio mr-2"><span class="text-sm">Nafta</span></label>
+                        <label class="flex items-center"><input type="radio" name="palivo" value="Elektro" class="custom-radio mr-2"><span class="text-sm">Elektro</span></label>
+                    </div>
+                </div>
+
+                <h3 class="font-bold text-sm uppercase border-b pb-2 pt-4">Detailní specifikace</h3>
+                <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+                    <div><label class="text-xs font-bold text-gray-400 uppercase block mb-1">Barva</label><input type="text" name="barva" placeholder="Černá metalíza" class="w-full border p-2 rounded text-sm bg-gray-50"></div>
+                    <div><label class="text-xs font-bold text-gray-400 uppercase block mb-1">Počet dveří</label><input type="number" name="dvere" value="5" class="w-full border p-2 rounded text-sm bg-gray-50"></div>
+                    <div><label class="text-xs font-bold text-gray-400 uppercase block mb-1">Počet míst</label><input type="number" name="mista" value="5" class="w-full border p-2 rounded text-sm bg-gray-50"></div>
+                    <div><label class="text-xs font-bold text-gray-400 uppercase block mb-1">Počet airbagů</label><input type="number" name="airbagy" value="6" class="w-full border p-2 rounded text-sm bg-gray-50"></div>
+                    <div><label class="text-xs font-bold text-gray-400 uppercase block mb-1">VIN kód</label><input type="text" name="vin" placeholder="TMB..." class="w-full border p-2 rounded text-sm bg-gray-50"></div>
+                    <div><label class="text-xs font-bold text-gray-400 uppercase block mb-1">STK platná do</label><input type="text" name="stk" placeholder="07/2026" class="w-full border p-2 rounded text-sm bg-gray-50"></div>
+                    <div><label class="text-xs font-bold text-gray-400 uppercase block mb-1">Země původu</label><input type="text" name="zeme" value="Česká republika" class="w-full border p-2 rounded text-sm bg-gray-50"></div>
+                    <div><label class="text-xs font-bold text-gray-400 uppercase block mb-1">První majitel</label><select name="majitel" class="w-full border p-2 rounded text-sm bg-gray-50"><option>Ano</option><option>Ne</option></select></div>
+                    <div><label class="text-xs font-bold text-gray-400 uppercase block mb-1">Servisní knížka</label><select name="serviska" class="w-full border p-2 rounded text-sm bg-gray-50"><option>Ano</option><option>Ne</option></select></div>
+                </div>
+
+                <h3 class="font-bold text-sm uppercase border-b pb-2 pt-4">Výbava a popis</h3>
+                <div><label class="text-xs font-bold text-gray-400 uppercase block mb-2">Seznam výbavy (oddělte čárkou)</label><textarea name="vybava_text" rows="3" placeholder="ABS, ESP, Klimatizace, Parkovací senzory, Tempomat..." class="w-full border p-3 rounded text-sm bg-gray-50"></textarea></div>
+                <div><label class="text-xs font-bold text-gray-400 uppercase block mb-2">Popis prodejce</label><textarea name="popis" rows="5" class="w-full border p-3 rounded text-sm bg-gray-50"></textarea></div>
+
+                <h3 class="font-bold text-sm uppercase border-b pb-2 pt-4 text-accent">Kontakt na prodejce</h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 bg-gray-50 p-4 rounded border border-gray-100">
+                    <div>
+                        <label class="text-xs font-bold text-gray-400 uppercase block mb-1">Jméno a Příjmení</label>
+                        <input type="text" name="prodejce_jmeno" placeholder="Jan Novák" required class="w-full border p-2 rounded text-sm bg-white">
+                    </div>
+                    <div>
+                        <label class="text-xs font-bold text-gray-400 uppercase block mb-1">Telefon</label>
+                        <input type="text" name="prodejce_tel" placeholder="+420 777 666 555" required class="w-full border p-2 rounded text-sm bg-white">
+                    </div>
+                    <div>
+                        <label class="text-xs font-bold text-gray-400 uppercase block mb-1">Email</label>
+                        <input type="email" name="prodejce_email" placeholder="jan@email.cz" required class="w-full border p-2 rounded text-sm bg-white">
+                    </div>
+                </div>
+
+                <div class="bg-indigo-50 border border-indigo-100 p-4 rounded text-xs text-indigo-800 flex items-start gap-3 mt-4">
+                    <i class="fa-solid fa-circle-info text-lg mt-0.5"></i>
+                    <div><p class="font-bold uppercase tracking-wide mb-1">Info</p><p>Odesláním souhlasíte se zveřejněním.</p></div>
+                </div>
+
+                <button type="submit" class="w-full bg-dark text-white font-bold py-4 rounded shadow-lg hover:bg-black transition uppercase tracking-widest text-sm mt-6">Zveřejnit inzerát</button>
+            </form>
+        </div>
+    </main>
+
+    <script>
+        const dropZone = document.getElementById('drop-zone');
+        const fileInput = document.getElementById('file-input');
+        const finalInput = document.getElementById('final-input');
+        const previewContainer = document.getElementById('preview-container');
+        let filesArray = [];
+
+        function updateUI() {
+            previewContainer.innerHTML = '';
+            filesArray.forEach((file, index) => {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const div = document.createElement('div');
+                    div.className = 'relative aspect-square bg-gray-100 rounded overflow-hidden shadow-sm group';
+                    div.innerHTML = `<img src="${e.target.result}" class="w-full h-full object-cover"><button type="button" onclick="removeFile(${index})" class="absolute top-1 right-1 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs opacity-0 group-hover:opacity-100 transition"><i class="fa-solid fa-times"></i></button>`;
+                    previewContainer.appendChild(div);
+                };
+                reader.readAsDataURL(file);
+            });
+            const dataTransfer = new DataTransfer();
+            filesArray.forEach(file => dataTransfer.items.add(file));
+            finalInput.files = dataTransfer.files;
+        }
+
+        window.removeFile = function(index) { filesArray.splice(index, 1); updateUI(); }
+
+        dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('drag-active'); });
+        dropZone.addEventListener('dragleave', () => { dropZone.classList.remove('drag-active'); });
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault(); dropZone.classList.remove('drag-active');
+            filesArray = [...filesArray, ...Array.from(e.dataTransfer.files)]; updateUI();
+        });
+        fileInput.addEventListener('change', (e) => {
+            filesArray = [...filesArray, ...Array.from(e.target.files)]; updateUI(); fileInput.value = ''; 
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ auto['znacka'] }} {{ auto['model'] }} | Detail</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: { dark: '#1a1a1a', card: '#f9fafb', accent: '#a78bfa', btn: '#9f9ff8' },
+                    fontFamily: { sans: ['Poppins', 'sans-serif'] }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="bg-white text-gray-800 font-sans min-h-screen flex flex-col">
+
+    <header class="bg-white py-6 border-b border-gray-100">
+        <nav class="container mx-auto px-6 max-w-7xl flex justify-between items-center">
+            <a href="{{ url_for('index') }}" class="text-xl font-bold text-accent uppercase tracking-widest">Autobazar</a>
+            <div class="flex items-center space-x-6 text-sm font-semibold uppercase tracking-wide">
+                <a href="{{ url_for('inzeraty') }}" class="text-gray-500 hover:text-black transition flex items-center"><i class="fa-solid fa-arrow-left mr-2"></i> Zpět</a>
+            </div>
+        </nav>
+    </header>
+
+    <main class="flex-grow py-10 px-6">
+        <div class="container mx-auto max-w-7xl">
+            
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-12 items-start mb-20">
+                
+                <div class="lg:col-span-2">
+                    <div class="bg-gray-100 rounded-sm overflow-hidden shadow-sm relative group aspect-video mb-4">
+                        <img id="main-image" src="{{ url_for('static', filename='uploads/' + auto['obrazek']) }}" alt="{{ auto['znacka'] }}" class="w-full h-full object-cover transition duration-300">
+                        <div class="absolute top-4 left-4 bg-dark text-white text-xs font-bold px-3 py-1 uppercase tracking-widest">{{ auto['kategorie'] }}</div>
+                    </div>
+                    {% if fotky %}
+                    <div class="grid grid-cols-5 gap-2">
+                        {% for foto in fotky %}
+                        <div class="aspect-square bg-gray-100 rounded-sm overflow-hidden cursor-pointer hover:opacity-80 transition border-2 border-transparent hover:border-accent"
+                             onclick="changeImage('{{ url_for('static', filename='uploads/' ~ foto['soubor']) }}')">
+                            <img src="{{ url_for('static', filename='uploads/' ~ foto['soubor']) }}" class="w-full h-full object-cover">
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+
+                <div class="flex flex-col h-full sticky top-6">
+                    <h1 class="text-4xl font-bold text-dark mb-2 leading-tight uppercase">{{ auto['znacka'] }} <span class="text-gray-400 block text-2xl mt-1">{{ auto['model'] }}</span></h1>
+                    <div class="text-4xl font-bold text-accent mb-8 mt-2">{{ auto['cena'] }} Kč</div>
+                    
+                    <div class="bg-gray-50 p-6 rounded-sm border border-gray-100 mb-8 shadow-sm">
+                        <h3 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-4 border-b border-gray-200 pb-2">Rychlý přehled</h3>
+                        <div class="space-y-3">
+                            <div class="flex justify-between items-center"><span class="text-sm text-gray-600"><i class="fa-regular fa-calendar mr-3 w-4 text-center"></i>Rok</span><span class="font-bold text-dark">{{ auto['rok'] }}</span></div>
+                            <div class="flex justify-between items-center"><span class="text-sm text-gray-600"><i class="fa-solid fa-road mr-3 w-4 text-center"></i>Najeto</span><span class="font-bold text-dark">{{ auto['km'] }} km</span></div>
+                            <div class="flex justify-between items-center"><span class="text-sm text-gray-600"><i class="fa-solid fa-gas-pump mr-3 w-4 text-center"></i>Palivo</span><span class="font-bold text-dark">{{ auto['palivo'] }}</span></div>
+                            <div class="flex justify-between items-center"><span class="text-sm text-gray-600"><i class="fa-solid fa-bolt mr-3 w-4 text-center"></i>Výkon</span><span class="font-bold text-dark">{{ auto['vykon'] }} kW</span></div>
+                        </div>
+                    </div>
+
+                    <div class="mt-auto">
+                        <h3 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">Kontakt na prodejce</h3>
+                        <div class="bg-dark text-white p-6 rounded shadow-lg">
+                            <div class="flex items-center gap-4 mb-4">
+                                <div class="w-12 h-12 bg-accent rounded-full flex items-center justify-center text-dark text-xl"><i class="fa-solid fa-user"></i></div>
+                                <div>
+                                    <p class="text-xs text-gray-400 uppercase tracking-wide">Prodejce</p>
+                                    <p class="font-bold text-lg">{{ auto['prodejce_jmeno'] }}</p>
+                                </div>
+                            </div>
+                            
+                            <div class="space-y-3 border-t border-gray-700 pt-4">
+                                <a href="tel:{{ auto['prodejce_tel'] }}" class="flex items-center gap-3 hover:text-accent transition group">
+                                    <i class="fa-solid fa-phone text-accent group-hover:scale-110 transition"></i>
+                                    <span class="font-bold text-xl">{{ auto['prodejce_tel'] }}</span>
+                                </a>
+                                <a href="mailto:{{ auto['prodejce_email'] }}" class="flex items-center gap-3 hover:text-accent transition text-sm text-gray-300">
+                                    <i class="fa-solid fa-envelope"></i>
+                                    <span>{{ auto['prodejce_email'] }}</span>
+                                </a>
+                            </div>
+                        </div>
+
+                        {% if session.get('logged_in') %}
+                        <a href="{{ url_for('smazat', id=auto['id']) }}" onclick="return confirm('Opravdu nenávratně smazat?');" class="block w-full text-center text-red-500 border border-red-100 hover:bg-red-50 py-3 rounded-sm transition text-xs font-bold uppercase tracking-widest mt-4"><i class="fa-solid fa-trash mr-2"></i> Smazat inzerát</a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="border-t border-gray-100 pt-16">
+                <h2 class="text-2xl font-bold text-dark uppercase tracking-widest mb-10 text-center">Detailní informace o voze</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-x-16 gap-y-12">
+                     <div>
+                        <h3 class="text-lg font-bold text-dark uppercase tracking-widest mb-6 border-l-4 border-accent pl-4">Stav vozu</h3>
+                        <div class="space-y-0 text-sm">
+                            <div class="flex justify-between py-3 border-b border-gray-100"><span class="text-gray-500">Stav</span><span class="font-bold text-dark">Ojeté</span></div>
+                            <div class="flex justify-between py-3 border-b border-gray-100"><span class="text-gray-500">Najeto</span><span class="font-bold text-dark">{{ auto['km'] }} km</span></div>
+                            <div class="flex justify-between py-3 border-b border-gray-100"><span class="text-gray-500">V provozu od</span><span class="font-bold text-dark">1/{{ auto['rok'] }}</span></div>
+                            <div class="flex justify-between py-3 border-b border-gray-100"><span class="text-gray-500">VIN</span><span class="font-bold text-dark">{{ auto['vin'] }}</span></div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h3 class="text-lg font-bold text-dark uppercase tracking-widest mb-6 border-l-4 border-accent pl-4">Specifikace vozu</h3>
+                        <div class="space-y-0 text-sm">
+                            <div class="flex justify-between py-3 border-b border-gray-100"><span class="text-gray-500">Karoserie</span><span class="font-bold text-dark">{{ auto['kategorie'] }}</span></div>
+                            <div class="flex justify-between py-3 border-b border-gray-100"><span class="text-gray-500">Barva</span><span class="font-bold text-dark">{{ auto['barva'] }}</span></div>
+                            <div class="flex justify-between py-3 border-b border-gray-100"><span class="text-gray-500">Počet airbagů</span><span class="font-bold text-dark">{{ auto['airbagy'] }}</span></div>
+                            <div class="flex justify-between py-3 border-b border-gray-100"><span class="text-gray-500">Počet dveří</span><span class="font-bold text-dark">{{ auto['dvere'] }}</span></div>
+                            <div class="flex justify-between py-3 border-b border-gray-100"><span class="text-gray-500">Počet míst</span><span class="font-bold text-dark">{{ auto['mista'] }}</span></div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h3 class="text-lg font-bold text-dark uppercase tracking-widest mb-6 border-l-4 border-accent pl-4">Pohon a motor</h3>
+                        <div class="space-y-0 text-sm">
+                            <div class="flex justify-between py-3 border-b border-gray-100"><span class="text-gray-500">Palivo</span><span class="font-bold text-dark">{{ auto['palivo'] }}</span></div>
+                            <div class="flex justify-between py-3 border-b border-gray-100"><span class="text-gray-500">Objem</span><span class="font-bold text-dark">{{ auto['objem'] }}</span></div>
+                            <div class="flex justify-between py-3 border-b border-gray-100"><span class="text-gray-500">Výkon</span><span class="font-bold text-dark">{{ auto['vykon'] }} kW</span></div>
+                            <div class="flex justify-between py-3 border-b border-gray-100"><span class="text-gray-500">Převodovka</span><span class="font-bold text-dark">{{ auto['prevodovka'] }}</span></div>
+                            <div class="flex justify-between py-3 border-b border-gray-100"><span class="text-gray-500">Emisní norma</span><span class="font-bold text-dark">{{ auto['emise'] }}</span></div>
+                            <div class="flex justify-between py-3 border-b border-gray-100"><span class="text-gray-500">Spotřeba</span><span class="font-bold text-dark">{{ auto['spotreba'] }} l/100 km</span></div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h3 class="text-lg font-bold text-dark uppercase tracking-widest mb-6 border-l-4 border-accent pl-4">Historie a původ</h3>
+                        <div class="space-y-0 text-sm">
+                            <div class="flex justify-between py-3 border-b border-gray-100"><span class="text-gray-500">1. majitel</span><span class="font-bold text-dark">{{ auto['majitel'] }}</span></div>
+                            <div class="flex justify-between py-3 border-b border-gray-100"><span class="text-gray-500">Země původu</span><span class="font-bold text-dark">{{ auto['zeme'] }}</span></div>
+                            <div class="flex justify-between py-3 border-b border-gray-100"><span class="text-gray-500">STK platná do</span><span class="font-bold text-dark">{{ auto['stk'] }}</span></div>
+                            <div class="flex justify-between py-3 border-b border-gray-100"><span class="text-gray-500">Servisní knížka</span><span class="font-bold text-dark">{{ auto['serviska'] }}</span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-16 grid grid-cols-1 lg:grid-cols-2 gap-16 border-t border-gray-100 pt-12">
+                <div>
+                    <h3 class="text-lg font-bold text-dark uppercase tracking-widest mb-6 border-l-4 border-accent pl-4">Výbava vozu</h3>
+                    <ul class="grid grid-cols-1 sm:grid-cols-2 gap-y-3 gap-x-4 text-sm text-gray-600">
+                        {% if auto['vybava_text'] %}
+                            {% for item in auto['vybava_text'].split(',') %}
+                                <li class="flex items-center"><i class="fa-solid fa-check text-accent mr-3"></i> {{ item.strip() }}</li>
+                            {% endfor %}
+                        {% else %}
+                            <li class="text-gray-400">Výbava neuvedena</li>
+                        {% endif %}
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-lg font-bold text-dark uppercase tracking-widest mb-6 border-l-4 border-accent pl-4">Popis prodejce</h3>
+                    <div class="prose text-gray-600 text-sm leading-relaxed bg-gray-50 p-6 rounded-sm border border-gray-100">{{ auto['popis'] }}</div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+    <script>
+        function changeImage(src) {
+            document.getElementById('main-image').src = src;
+        }
+    </script>
+</body>
+</html>

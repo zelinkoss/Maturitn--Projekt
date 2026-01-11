@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <title>Přihlášení | Autobazar</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        dark: '#1a1a1a',
+                        accent: '#a78bfa',
+                        btn: '#9f9ff8',
+                    },
+                    fontFamily: {
+                        sans: ['Poppins', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        body { background-color: #f3f4f6; }
+    </style>
+</head>
+<body class="text-gray-800 font-sans min-h-screen flex flex-col justify-between">
+
+    <header class="py-6 text-center">
+        <a href="{{ url_for('index') }}" class="text-xl font-bold text-accent uppercase tracking-widest hover:text-dark transition">
+            Autobazar
+        </a>
+    </header>
+
+    <main class="flex-grow flex items-center justify-center px-6">
+        
+        <div class="bg-white p-10 rounded-lg shadow-xl w-full max-w-sm border border-gray-100">
+            
+            <div class="flex justify-center mb-6">
+                <div class="w-20 h-20 bg-btn rounded-full flex items-center justify-center text-white shadow-md">
+                    <i class="fa-solid fa-lock text-3xl"></i>
+                </div>
+            </div>
+
+            <h1 class="text-2xl font-bold text-center text-dark uppercase tracking-widest mb-2">Admin zóna</h1>
+            <p class="text-xs text-center text-gray-400 uppercase tracking-widest mb-8">Zadejte heslo pro přístup</p>
+
+            {% if error %}
+            <div class="bg-red-50 border border-red-100 text-red-500 text-xs font-bold uppercase tracking-widest p-3 rounded mb-6 text-center animate-pulse">
+                <i class="fa-solid fa-circle-exclamation mr-1"></i> {{ error }}
+            </div>
+            {% endif %}
+
+            <form method="POST" class="space-y-6">
+                <div>
+                    <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2 ml-1">Heslo</label>
+                    <div class="relative">
+                        <i class="fa-solid fa-key absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                        <input type="password" name="password" required placeholder="••••••••" 
+                               class="w-full border border-gray-200 bg-gray-50 rounded p-4 pl-10 text-sm focus:border-dark focus:bg-white outline-none transition">
+                    </div>
+                </div>
+
+                <button type="submit" class="w-full bg-dark text-white font-bold py-4 rounded shadow-lg hover:bg-black transition uppercase tracking-widest text-xs transform hover:scale-[1.02]">
+                    Přihlásit se
+                </button>
+            </form>
+
+            <div class="mt-8 text-center">
+                <a href="{{ url_for('index') }}" class="text-[10px] text-gray-400 hover:text-dark font-bold uppercase tracking-widest transition">
+                    ← Zpět na web
+                </a>
+            </div>
+
+        </div>
+
+    </main>
+
+    <footer class="py-6 text-center text-[10px] text-gray-400 uppercase tracking-widest">
+        © 2024 Admin System
+    </footer>
+
+</body>
+</html>
