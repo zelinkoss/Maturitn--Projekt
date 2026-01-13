@@ -1,8 +1,20 @@
 <!DOCTYPE html>
 <html lang="cs">
 <head>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-S1YQ2TYJE7"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-S1YQ2TYJE7');
+    </script>
     <meta charset="UTF-8">
     <title>Nabídka vozů | Autobazar</title>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -26,83 +38,114 @@
 </head>
 <body class="text-gray-800 font-sans">
 
-    <header class="bg-white py-6 px-6 border-b border-gray-200 sticky top-0 z-50">
-        <nav class="container mx-auto max-w-6xl flex justify-between items-center">
-            <a href="{{ url_for('index') }}" class="text-xl font-bold text-accent uppercase tracking-widest">Autobazar</a>
-            <div class="hidden md:flex space-x-8 text-sm font-bold text-gray-600 uppercase tracking-wide">
-                <a href="{{ url_for('inzeraty') }}" class="text-black">Nabídka</a>
-                <a href="{{ url_for('pridat') }}" class="hover:text-black">Prodat auto</a>
+    <header class="bg-white py-6 px-6 border-b border-gray-200 sticky top-0 z-50 shadow-sm navbar-anim">
+        <nav class="container mx-auto max-w-7xl flex justify-between items-center">
+            <a href="{{ url_for('index') }}" class="text-xl font-bold text-accent uppercase tracking-widest hover:text-dark transition">
+                Autobazar
+            </a>
+
+            <div class="flex items-center space-x-6 text-sm font-semibold uppercase tracking-wide">
+                <a href="{{ url_for('inzeraty') }}" class="text-gray-600 hover:text-black transition">
+                    Nabídka vozů
+                </a>
+
+                {% if session.get('user_id') %}
+                    <a href="{{ url_for('pridat') }}" class="text-gray-600 hover:text-black transition">
+                        <i class="fa-solid fa-plus mr-1"></i> Prodat
+                    </a>
+
+                    <a href="{{ url_for('moje_inzeraty') }}" class="text-gray-600 hover:text-black transition">
+                        <i class="fa-solid fa-list mr-1"></i> Moje
+                    </a>
+
+                    <div class="h-6 w-px bg-gray-300 mx-2"></div>
+
+                    <div class="flex items-center gap-3">
+                        <span class="text-xs text-accent normal-case font-bold bg-gray-50 px-2 py-1 rounded">
+                            {{ session['username'] }}
+                        </span>
+                        <a href="{{ url_for('logout') }}" class="text-red-500 hover:text-red-700 transition" title="Odhlásit se">
+                            <i class="fa-solid fa-right-from-bracket"></i>
+                        </a>
+                    </div>
+
+                {% else %}
+                    <div class="h-6 w-px bg-gray-300 mx-2"></div>
+                    <a href="{{ url_for('login') }}" class="text-gray-600 hover:text-black transition">Přihlásit</a>
+                    <a href="{{ url_for('register') }}" class="bg-dark text-white px-4 py-2 rounded hover:bg-black transition">Registrace</a>
+                {% endif %}
             </div>
         </nav>
     </header>
 
     <main class="container mx-auto py-8 px-6 max-w-6xl flex flex-col md:flex-row gap-8">
-        
-        <aside class="w-full md:w-1/4">
-            <form action="{{ url_for('inzeraty') }}" method="GET" class="bg-white p-6 rounded-lg shadow-sm sticky top-28 space-y-6 max-h-[85vh] overflow-y-auto">
-                
+
+        <aside class="w-full md:w-1/4 sidebar-anim">
+            <form id="filter-form" action="{{ url_for('inzeraty') }}" method="GET" class="bg-white p-6 rounded-lg shadow-sm sticky top-28 space-y-6 max-h-[85vh] overflow-y-auto">
+
                 <div class="flex justify-between items-center border-b pb-2">
                     <h3 class="font-bold text-sm uppercase tracking-widest text-dark">Filtrace</h3>
-                    <a href="{{ url_for('inzeraty') }}" class="text-[10px] text-red-500 hover:text-red-700 font-bold uppercase">Reset</a>
+                    <a href="{{ url_for('inzeraty') }}" class="text-[10px] text-red-500 hover:text-red-700 font-bold uppercase {{ 'hidden' if not request.args }}">Reset</a>
                 </div>
 
                 <div>
                     <label class="text-xs font-bold text-gray-500 uppercase mb-2 block">Hledat</label>
                     <div class="relative">
                         <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-xs"></i>
-                        <input type="text" name="q" placeholder="Značka, model..." value="{{ request.args.get('q', '') }}" class="w-full border border-gray-200 rounded py-2 pl-8 pr-4 text-sm focus:outline-none focus:border-dark bg-gray-50">
+                        <input type="text" name="q" placeholder="Značka, model..." value="{{ request.args.get('q', '') }}" class="filter-input w-full border border-gray-200 rounded py-2 pl-8 pr-4 text-sm focus:outline-none focus:border-dark bg-gray-50">
                     </div>
                 </div>
 
                 <div>
                     <label class="text-xs font-bold text-gray-500 uppercase mb-2 block">Cena (Kč)</label>
                     <div class="flex gap-2">
-                        <input type="number" name="cena_od" placeholder="Od" value="{{ request.args.get('cena_od', '') }}" class="w-1/2 border border-gray-200 rounded py-2 px-2 text-sm text-center bg-gray-50 focus:border-dark outline-none">
-                        <input type="number" name="cena_do" placeholder="Do" value="{{ request.args.get('cena_do', '') }}" class="w-1/2 border border-gray-200 rounded py-2 px-2 text-sm text-center bg-gray-50 focus:border-dark outline-none">
+                        <input type="number" name="cena_od" placeholder="Od" value="{{ request.args.get('cena_od', '') }}" class="filter-input w-1/2 border border-gray-200 rounded py-2 px-2 text-sm text-center bg-gray-50 focus:border-dark outline-none">
+                        <input type="number" name="cena_do" placeholder="Do" value="{{ request.args.get('cena_do', '') }}" class="filter-input w-1/2 border border-gray-200 rounded py-2 px-2 text-sm text-center bg-gray-50 focus:border-dark outline-none">
                     </div>
                 </div>
                 <div>
                     <label class="text-xs font-bold text-gray-500 uppercase mb-2 block">Karoserie</label>
                     <div class="space-y-2">
                         <label class="flex items-center cursor-pointer hover:text-black transition">
-                            <input type="radio" name="kategorie" value="" class="custom-radio mr-2" {{ 'checked' if not request.args.get('kategorie') }}>
+                            <input type="radio" name="kategorie" value="" class="filter-input custom-radio mr-2" {{ 'checked' if not request.args.get('kategorie') }}>
                             <span class="text-sm">Všechny</span>
                         </label>
+                        {% for kat in ['SUV', 'Sedan', 'Combi', 'Sport', 'Van'] %}
+                        <label class="flex items-center cursor-pointer hover:text-black transition">
+                            <input type="radio" name="kategorie" value="{{ kat }}" class="filter-input custom-radio mr-2" {{ 'checked' if request.args.get('kategorie') == kat }}>
+                            <span class="text-sm">{{ kat }}</span>
+                        </label>
+                        {% endfor %}
                     </div>
                 </div>
-                {% for kat in ['SUV', 'Sedan', 'Combi', 'Sport', 'Van'] %}
-                    <label class="flex items-center cursor-pointer hover:text-black transition">
-                        <input type="radio" name="kategorie" value="{{ kat }}" class="custom-radio mr-2" {{ 'checked' if request.args.get('kategorie') == kat }}>
-                        <span class="text-sm">{{ kat }}</span>
-                    </label>
-                {% endfor %}
+
                 <div>
                     <label class="text-xs font-bold text-gray-500 uppercase mb-2 block">Rok výroby</label>
                     <div class="flex gap-2">
-                        <input type="number" name="rok_od" placeholder="Od" value="{{ request.args.get('rok_od', '') }}" class="w-1/2 border border-gray-200 rounded py-2 px-2 text-sm text-center bg-gray-50 focus:border-dark outline-none">
-                        <input type="number" name="rok_do" placeholder="Do" value="{{ request.args.get('rok_do', '') }}" class="w-1/2 border border-gray-200 rounded py-2 px-2 text-sm text-center bg-gray-50 focus:border-dark outline-none">
+                        <input type="number" name="rok_od" placeholder="Od" value="{{ request.args.get('rok_od', '') }}" class="filter-input w-1/2 border border-gray-200 rounded py-2 px-2 text-sm text-center bg-gray-50 focus:border-dark outline-none">
+                        <input type="number" name="rok_do" placeholder="Do" value="{{ request.args.get('rok_do', '') }}" class="filter-input w-1/2 border border-gray-200 rounded py-2 px-2 text-sm text-center bg-gray-50 focus:border-dark outline-none">
                     </div>
                 </div>
 
                 <div>
                     <label class="text-xs font-bold text-gray-500 uppercase mb-2 block">Nájezd (km)</label>
                     <div class="flex gap-2">
-                        <input type="number" name="km_od" placeholder="Od" value="{{ request.args.get('km_od', '') }}" class="w-1/2 border border-gray-200 rounded py-2 px-2 text-sm text-center bg-gray-50 focus:border-dark outline-none">
-                        <input type="number" name="km_do" placeholder="Do" value="{{ request.args.get('km_do', '') }}" class="w-1/2 border border-gray-200 rounded py-2 px-2 text-sm text-center bg-gray-50 focus:border-dark outline-none">
+                        <input type="number" name="km_od" placeholder="Od" value="{{ request.args.get('km_od', '') }}" class="filter-input w-1/2 border border-gray-200 rounded py-2 px-2 text-sm text-center bg-gray-50 focus:border-dark outline-none">
+                        <input type="number" name="km_do" placeholder="Do" value="{{ request.args.get('km_do', '') }}" class="filter-input w-1/2 border border-gray-200 rounded py-2 px-2 text-sm text-center bg-gray-50 focus:border-dark outline-none">
                     </div>
                 </div>
 
                 <div>
                     <label class="text-xs font-bold text-gray-500 uppercase mb-2 block">Výkon (kW)</label>
                     <div class="flex gap-2">
-                        <input type="number" name="vykon_od" placeholder="Od" value="{{ request.args.get('vykon_od', '') }}" class="w-1/2 border border-gray-200 rounded py-2 px-2 text-sm text-center bg-gray-50 focus:border-dark outline-none">
-                        <input type="number" name="vykon_do" placeholder="Do" value="{{ request.args.get('vykon_do', '') }}" class="w-1/2 border border-gray-200 rounded py-2 px-2 text-sm text-center bg-gray-50 focus:border-dark outline-none">
+                        <input type="number" name="vykon_od" placeholder="Od" value="{{ request.args.get('vykon_od', '') }}" class="filter-input w-1/2 border border-gray-200 rounded py-2 px-2 text-sm text-center bg-gray-50 focus:border-dark outline-none">
+                        <input type="number" name="vykon_do" placeholder="Do" value="{{ request.args.get('vykon_do', '') }}" class="filter-input w-1/2 border border-gray-200 rounded py-2 px-2 text-sm text-center bg-gray-50 focus:border-dark outline-none">
                     </div>
                 </div>
 
                 <div>
                     <label class="text-xs font-bold text-gray-500 uppercase mb-2 block">Palivo</label>
-                    <select name="palivo" class="w-full border border-gray-200 rounded py-2 px-2 text-sm bg-gray-50 focus:border-dark outline-none cursor-pointer">
+                    <select name="palivo" class="filter-input w-full border border-gray-200 rounded py-2 px-2 text-sm bg-gray-50 focus:border-dark outline-none cursor-pointer">
                         <option value="">Všechna paliva</option>
                         <option value="Benzín" {{ 'selected' if request.args.get('palivo') == 'Benzín' }}>Benzín</option>
                         <option value="Nafta" {{ 'selected' if request.args.get('palivo') == 'Nafta' }}>Nafta</option>
@@ -112,150 +155,168 @@
 
                 <div>
                     <label class="text-xs font-bold text-gray-500 uppercase mb-2 block">Převodovka</label>
-                    <select name="prevodovka" class="w-full border border-gray-200 rounded py-2 px-2 text-sm bg-gray-50 focus:border-dark outline-none cursor-pointer">
+                    <select name="prevodovka" class="filter-input w-full border border-gray-200 rounded py-2 px-2 text-sm bg-gray-50 focus:border-dark outline-none cursor-pointer">
                         <option value="">Vše</option>
                         <option value="Manuální" {{ 'selected' if request.args.get('prevodovka') == 'Manuální' }}>Manuální</option>
                         <option value="Automatická" {{ 'selected' if request.args.get('prevodovka') == 'Automatická' }}>Automatická</option>
                     </select>
                 </div>
-                
-                <button type="submit" class="w-full bg-dark text-white py-3 text-xs font-bold uppercase tracking-widest hover:bg-black transition rounded shadow-lg mt-4">
+
+                <button type="submit" class="hidden w-full bg-dark text-white py-3 text-xs font-bold uppercase tracking-widest hover:bg-black transition rounded shadow-lg mt-4">
                     Aplikovat filtry
                 </button>
             </form>
         </aside>
 
-        <section class="w-full md:w-3/4 space-y-4">
-            <div class="flex justify-between items-end mb-2 px-1">
+        <section class="w-full md:w-3/4 space-y-4" id="car-list-container">
+            <div class="flex justify-between items-end mb-2 px-1 header-anim">
                 <h2 class="text-xl font-bold text-dark uppercase tracking-wide">Výsledky hledání</h2>
                 <span class="text-xs text-gray-500 font-bold uppercase tracking-widest bg-white px-2 py-1 rounded border">{{ auta|length }} vozů</span>
             </div>
-            
-            {% for auto in auta %}
-            <article class="bg-white p-4 rounded-xl flex flex-col md:flex-row gap-6 hover:shadow-lg transition duration-300 group items-center md:items-stretch border border-transparent hover:border-gray-100">
-                <div class="w-full md:w-64 h-48 relative overflow-hidden rounded-lg bg-gray-100 shrink-0">
-                    <img src="{{ url_for('static', filename='uploads/' + auto['obrazek']) }}" alt="{{ auto['znacka'] }}" class="object-cover w-full h-full transform group-hover:scale-105 transition duration-500">
-                </div>
-                <div class="flex flex-col justify-between w-full py-2">
-                    <div>
-                        <div class="flex justify-between items-start">
-                            <h2 class="text-xl font-bold text-dark uppercase tracking-wide mb-1">{{ auto['znacka'] }} {{ auto['model'] }}</h2>
-                            <span class="bg-gray-100 text-[10px] px-2 py-1 rounded font-bold uppercase tracking-widest text-gray-500">{{ auto['kategorie'] }}</span>
+
+            <div id="cars-grid" class="space-y-4">
+                {% for auto in auta %}
+                <article class="car-card bg-white p-4 rounded-xl flex flex-col md:flex-row gap-6 hover:shadow-lg transition duration-300 group items-center md:items-stretch border border-transparent hover:border-gray-100">
+                    <div class="w-full md:w-64 h-48 relative overflow-hidden rounded-lg bg-gray-100 shrink-0">
+                        <img src="{{ url_for('static', filename='uploads/' + auto['obrazek']) }}" alt="{{ auto['znacka'] }}" class="object-cover w-full h-full transform group-hover:scale-105 transition duration-500">
+                    </div>
+                    <div class="flex flex-col justify-between w-full py-2">
+                        <div>
+                            <div class="flex justify-between items-start">
+                                <h2 class="text-xl font-bold text-dark uppercase tracking-wide mb-1">{{ auto['znacka'] }} {{ auto['model'] }}</h2>
+                                <span class="bg-gray-100 text-[10px] px-2 py-1 rounded font-bold uppercase tracking-widest text-gray-500">{{ auto['kategorie'] }}</span>
+                            </div>
+
+                            <p class="text-sm text-gray-500 mb-4 line-clamp-1">{{ auto['popis'][:80] }}...</p>
+
+                            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs font-medium text-gray-500 uppercase tracking-wide">
+                                <div class="bg-gray-50 rounded px-2 py-1 flex items-center gap-2">
+                                    <i class="fa-regular fa-calendar"></i> {{ auto['rok'] }}
+                                </div>
+                                <div class="bg-gray-50 rounded px-2 py-1 flex items-center gap-2">
+                                    <i class="fa-solid fa-road"></i> {{ auto['km'] }} km
+                                </div>
+                                <div class="bg-gray-50 rounded px-2 py-1 flex items-center gap-2">
+                                    <i class="fa-solid fa-gas-pump"></i> {{ auto['palivo'] }}
+                                </div>
+                                <div class="bg-gray-50 rounded px-2 py-1 flex items-center gap-2">
+                                    <i class="fa-solid fa-bolt"></i> {{ auto['vykon'] }} kW
+                                </div>
+                            </div>
                         </div>
-                        
-                        <p class="text-sm text-gray-500 mb-4 line-clamp-1">{{ auto['popis'][:80] }}...</p>
-                        
-                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs font-medium text-gray-500 uppercase tracking-wide">
-                            <div class="bg-gray-50 rounded px-2 py-1 flex items-center gap-2">
-                                <i class="fa-regular fa-calendar"></i> {{ auto['rok'] }}
-                            </div>
-                            <div class="bg-gray-50 rounded px-2 py-1 flex items-center gap-2">
-                                <i class="fa-solid fa-road"></i> {{ auto['km'] }} km
-                            </div>
-                            <div class="bg-gray-50 rounded px-2 py-1 flex items-center gap-2">
-                                <i class="fa-solid fa-gas-pump"></i> {{ auto['palivo'] }}
-                            </div>
-                            <div class="bg-gray-50 rounded px-2 py-1 flex items-center gap-2">
-                                <i class="fa-solid fa-bolt"></i> {{ auto['vykon'] }} kW
-                            </div>
+
+                        <div class="flex items-center justify-between mt-6 pt-4 border-t border-gray-50">
+                            <span class="text-2xl font-bold text-dark">{{ auto['cena'] }} Kč</span>
+                            <a href="{{ url_for('detail', id=auto['id']) }}" class="bg-white border-2 border-dark text-dark px-6 py-2 text-xs font-bold uppercase tracking-widest hover:bg-dark hover:text-white transition rounded">
+                                Detail vozu
+                            </a>
                         </div>
                     </div>
-                    
-                    <div class="flex items-center justify-between mt-6 pt-4 border-t border-gray-50">
-                        <span class="text-2xl font-bold text-dark">{{ auto['cena'] }} Kč</span>
-                        <a href="{{ url_for('detail', id=auto['id']) }}" class="bg-white border-2 border-dark text-dark px-6 py-2 text-xs font-bold uppercase tracking-widest hover:bg-dark hover:text-white transition rounded">
-                            Detail vozu
-                        </a>
-                    </div>
+                </article>
+                {% else %}
+                <div class="text-center py-20 bg-white border border-dashed border-gray-300 rounded-lg">
+                    <i class="fa-solid fa-filter text-4xl text-gray-300 mb-4"></i>
+                    <h3 class="text-sm text-gray-400 font-bold uppercase tracking-widest">Nebyly nalezeny žádné vozy</h3>
+                    <p class="text-xs text-gray-400 mt-1">Zkuste upravit filtry</p>
+                    <a href="{{ url_for('inzeraty') }}" class="text-accent underline text-xs mt-4 block font-bold uppercase tracking-widest">Zobrazit všechna auta</a>
                 </div>
-            </article>
-            {% else %}
-            <div class="text-center py-20 bg-white border border-dashed border-gray-300 rounded-lg">
-                <i class="fa-solid fa-filter text-4xl text-gray-300 mb-4"></i>
-                <h3 class="text-sm text-gray-400 font-bold uppercase tracking-widest">Nebyly nalezeny žádné vozy</h3>
-                <p class="text-xs text-gray-400 mt-1">Zkuste upravit filtry</p>
-                <a href="{{ url_for('inzeraty') }}" class="text-accent underline text-xs mt-4 block font-bold uppercase tracking-widest">Zobrazit všechna auta</a>
+                {% endfor %}
             </div>
-            {% endfor %}
         </section>
     </main>
+
     <footer class="bg-dark text-white pt-20 pb-10 mt-auto border-t border-gray-800">
         <div class="container mx-auto px-6 max-w-7xl">
-            
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
-                
                 <div>
-                    <a href="{{ url_for('index') }}" class="text-2xl font-bold text-accent uppercase tracking-widest block mb-6">
-                        Autobazar
-                    </a>
-                    <p class="text-gray-400 text-sm leading-relaxed mb-6">
-                        Váš spolehlivý partner při nákupu a prodeji vozů. 
-                        Garantujeme původ, technický stav a férové jednání u každého vozu.
-                    </p>
+                    <a href="{{ url_for('index') }}" class="text-2xl font-bold text-accent uppercase tracking-widest block mb-6">Autobazar</a>
+                    <p class="text-gray-400 text-sm leading-relaxed mb-6">Váš spolehlivý partner při nákupu a prodeji vozů. Garantujeme původ, technický stav a férové jednání.</p>
                     <div class="flex space-x-4">
-                        <a href="#" class="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-accent hover:text-dark transition text-gray-400">
-                            <i class="fa-brands fa-facebook-f"></i>
-                        </a>
-                        <a href="#" class="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-accent hover:text-dark transition text-gray-400">
-                            <i class="fa-brands fa-instagram"></i>
-                        </a>
-                        <a href="#" class="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-accent hover:text-dark transition text-gray-400">
-                            <i class="fa-brands fa-tiktok"></i>
-                        </a>
+                        <a href="#" class="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-accent hover:text-dark transition text-gray-400"><i class="fa-brands fa-facebook-f"></i></a>
+                        <a href="#" class="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-accent hover:text-dark transition text-gray-400"><i class="fa-brands fa-instagram"></i></a>
+                        <a href="#" class="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-accent hover:text-dark transition text-gray-400"><i class="fa-brands fa-tiktok"></i></a>
                     </div>
                 </div>
-
-                <div>
-                    <h4 class="text-white font-bold uppercase tracking-widest mb-6">Navigace</h4>
-                    <ul class="space-y-4 text-sm text-gray-400">
-                        <li><a href="{{ url_for('index') }}" class="hover:text-accent transition flex items-center"><i class="fa-solid fa-chevron-right text-[10px] mr-2 text-gray-600"></i> Domů</a></li>
-                        <li><a href="{{ url_for('inzeraty') }}" class="hover:text-accent transition flex items-center"><i class="fa-solid fa-chevron-right text-[10px] mr-2 text-gray-600"></i> Nabídka vozů</a></li>
-                        <li><a href="{{ url_for('pridat') }}" class="hover:text-accent transition flex items-center"><i class="fa-solid fa-chevron-right text-[10px] mr-2 text-gray-600"></i> Prodat auto</a></li>
-                    </ul>
-                </div>
-
-                <div>
-                    <h4 class="text-white font-bold uppercase tracking-widest mb-6">Kontakt</h4>
-                    <ul class="space-y-4 text-sm text-gray-400">
-                        <li class="flex items-start">
-                            <i class="fa-solid fa-location-dot text-accent mt-1 mr-3"></i>
-                            <span>Autobazarová 123<br>110 00 Praha 1</span>
-                        </li>
-                        <li class="flex items-center">
-                            <i class="fa-solid fa-phone text-accent mr-3"></i>
-                            <span>+420 123 456 789</span>
-                        </li>
-                        <li class="flex items-center">
-                            <i class="fa-solid fa-envelope text-accent mr-3"></i>
-                            <span>info@autobazar.cz</span>
-                        </li>
-                        <li class="flex items-center">
-                            <i class="fa-solid fa-clock text-accent mr-3"></i>
-                            <span>Po-Pá: 9:00 - 18:00</span>
-                        </li>
-                    </ul>
-                </div>
-
-                <div>
-                    <h4 class="text-white font-bold uppercase tracking-widest mb-6">Novinky</h4>
-                    <p class="text-gray-400 text-sm mb-4">Chcete vědět o nových autech jako první?</p>
-                    <form class="flex flex-col gap-2">
-                        <input type="email" placeholder="Váš email" class="bg-gray-800 text-white text-sm p-3 rounded border border-gray-700 focus:border-accent outline-none">
-                        <button type="button" class="bg-accent text-dark font-bold text-xs uppercase tracking-widest py-3 rounded hover:bg-white transition">Odebírat</button>
-                    </form>
-                </div>
-
+                <div><h4 class="text-white font-bold uppercase tracking-widest mb-6">Navigace</h4><ul class="space-y-4 text-sm text-gray-400"><li><a href="{{ url_for('index') }}" class="hover:text-accent transition flex items-center"><i class="fa-solid fa-chevron-right text-[10px] mr-2 text-gray-600"></i> Domů</a></li><li><a href="{{ url_for('inzeraty') }}" class="hover:text-accent transition flex items-center"><i class="fa-solid fa-chevron-right text-[10px] mr-2 text-gray-600"></i> Nabídka vozů</a></li><li><a href="{{ url_for('pridat') }}" class="hover:text-accent transition flex items-center"><i class="fa-solid fa-chevron-right text-[10px] mr-2 text-gray-600"></i> Prodat auto</a></li></ul></div>
+                <div><h4 class="text-white font-bold uppercase tracking-widest mb-6">Kontakt</h4><ul class="space-y-4 text-sm text-gray-400"><li class="flex items-start"><i class="fa-solid fa-location-dot text-accent mt-1 mr-3"></i><span>Autobazarová 123<br>110 00 Praha 1</span></li><li class="flex items-center"><i class="fa-solid fa-phone text-accent mr-3"></i><span>+420 123 456 789</span></li><li class="flex items-center"><i class="fa-solid fa-envelope text-accent mr-3"></i><span>info@autobazar.cz</span></li><li class="flex items-center"><i class="fa-solid fa-clock text-accent mr-3"></i><span>Po-Pá: 9:00 - 18:00</span></li></ul></div>
+                <div><h4 class="text-white font-bold uppercase tracking-widest mb-6">Novinky</h4><p class="text-gray-400 text-sm mb-4">Chcete vědět o nových autech jako první?</p><form class="flex flex-col gap-2"><input type="email" placeholder="Váš email" class="bg-gray-800 text-white text-sm p-3 rounded border border-gray-700 focus:border-accent outline-none"><button type="button" class="bg-accent text-dark font-bold text-xs uppercase tracking-widest py-3 rounded hover:bg-white transition">Odebírat</button></form></div>
             </div>
-
-            <div class="border-t border-gray-800 pt-8 flex flex-col md:flex-row justify-between items-center text-xs text-gray-500 uppercase tracking-widest">
-                <p>&copy; 2024 Autobazar Projekt. Všechna práva vyhrazena.</p>
-                <div class="flex space-x-6 mt-4 md:mt-0">
-                    <a href="#" class="hover:text-white transition">Ochrana dat</a>
-                    <a href="#" class="hover:text-white transition">Cookies</a>
-                    <a href="#" class="hover:text-white transition">Podmínky</a>
-                </div>
-            </div>
+            <div class="border-t border-gray-800 pt-8 flex flex-col md:flex-row justify-between items-center text-xs text-gray-500 uppercase tracking-widest"><p>&copy; 2024 Autobazar Projekt. Všechna práva vyhrazena.</p><div class="flex space-x-6 mt-4 md:mt-0"><a href="#" class="hover:text-white transition">Ochrana dat</a><a href="#" class="hover:text-white transition">Cookies</a><a href="#" class="hover:text-white transition">Podmínky</a></div></div>
         </div>
     </footer>
+
+    <script>
+        // --- 1. GSAP ANIMACE ---
+        function animateElements() {
+            // Navbar
+            gsap.from(".navbar-anim", { y: -50, opacity: 0, duration: 0.8, ease: "power3.out" });
+
+            // Sidebar
+            gsap.from(".sidebar-anim", { x: -30, opacity: 0, duration: 0.8, delay: 0.2, ease: "power3.out" });
+
+            // Header
+            gsap.from(".header-anim", { opacity: 0, duration: 0.6, delay: 0.3 });
+
+            // Karty aut - Tady je změna: použijeme .from (z neviditelna do viditelna)
+            gsap.from(".car-card", {
+                opacity: 0,
+                y: 30,
+                duration: 0.6,
+                stagger: 0.1, // Postupně po jednom
+                ease: "power2.out",
+                clearProps: "all" // Po animaci vyčistí styly, aby se to nekazilo
+            });
+        }
+
+        // Spustit po načtení
+        document.addEventListener("DOMContentLoaded", animateElements);
+
+        // --- 2. LIVE SEARCH ---
+        const form = document.getElementById('filter-form');
+        const inputs = form.querySelectorAll('.filter-input');
+        const listContainer = document.getElementById('car-list-container');
+        let debounceTimer;
+
+        function updateResults() {
+            const formData = new FormData(form);
+            const params = new URLSearchParams(formData);
+            const url = `${form.action}?${params.toString()}`;
+
+            // Změna URL bez reloadu
+            window.history.pushState({}, '', url);
+
+            fetch(url)
+                .then(response => response.text())
+                .then(html => {
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(html, 'text/html');
+                    const newContent = doc.getElementById('car-list-container').innerHTML;
+
+                    // Výměna obsahu
+                    listContainer.innerHTML = newContent;
+
+                    // Znovu spustit animaci na nové karty (opět .from)
+                    gsap.from(".car-card", {
+                        opacity: 0,
+                        y: 20,
+                        duration: 0.4,
+                        stagger: 0.05,
+                        ease: "power2.out",
+                        clearProps: "all"
+                    });
+                })
+                .catch(err => console.error('Chyba:', err));
+        }
+
+        inputs.forEach(input => {
+            input.addEventListener('input', () => {
+                clearTimeout(debounceTimer);
+                debounceTimer = setTimeout(updateResults, 300); // Čeká 300ms po dopsání
+            });
+            if (input.type === 'radio' || input.tagName === 'SELECT') {
+                input.addEventListener('change', updateResults);
+            }
+        });
+    </script>
 </body>
 </html>

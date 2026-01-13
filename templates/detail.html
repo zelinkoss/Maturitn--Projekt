@@ -1,10 +1,16 @@
 <!DOCTYPE html>
 <html lang="cs">
 <head>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-S1YQ2TYJE7"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-S1YQ2TYJE7');
+    </script>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ auto['znacka'] }} {{ auto['model'] }} | Detail</title>
-    
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -21,11 +27,22 @@
 </head>
 <body class="bg-white text-gray-800 font-sans min-h-screen flex flex-col">
 
-    <header class="bg-white py-6 border-b border-gray-100">
-        <nav class="container mx-auto px-6 max-w-7xl flex justify-between items-center">
+    <header class="bg-white py-6 px-6 border-b border-gray-200 sticky top-0 z-50 shadow-sm">
+        <nav class="container mx-auto max-w-7xl flex justify-between items-center">
             <a href="{{ url_for('index') }}" class="text-xl font-bold text-accent uppercase tracking-widest">Autobazar</a>
             <div class="flex items-center space-x-6 text-sm font-semibold uppercase tracking-wide">
-                <a href="{{ url_for('inzeraty') }}" class="text-gray-500 hover:text-black transition flex items-center"><i class="fa-solid fa-arrow-left mr-2"></i> Zpět</a>
+                <a href="{{ url_for('inzeraty') }}" class="text-gray-600 hover:text-black transition">Nabídka vozů</a>
+                {% if session.get('user_id') %}
+                    <a href="{{ url_for('pridat') }}" class="text-gray-600 hover:text-black transition"><i class="fa-solid fa-plus mr-1"></i> Prodat</a>
+                    <a href="{{ url_for('moje_inzeraty') }}" class="text-gray-600 hover:text-black transition"><i class="fa-solid fa-list mr-1"></i> Moje</a>
+                    <div class="h-6 w-px bg-gray-300 mx-2"></div>
+                    <div class="flex items-center gap-3">
+                        <span class="text-xs text-accent normal-case font-bold bg-gray-50 px-2 py-1 rounded">{{ session['username'] }}</span>
+                        <a href="{{ url_for('logout') }}" class="text-red-500 hover:text-red-700 transition"><i class="fa-solid fa-right-from-bracket"></i></a>
+                    </div>
+                {% else %}
+                    <a href="{{ url_for('login') }}" class="text-gray-600 hover:text-black transition">Přihlásit</a>
+                {% endif %}
             </div>
         </nav>
     </header>
@@ -45,7 +62,7 @@
                         {% for foto in fotky %}
                         <div class="aspect-square bg-gray-100 rounded-sm overflow-hidden cursor-pointer hover:opacity-80 transition border-2 border-transparent hover:border-accent"
                              onclick="changeImage('{{ url_for('static', filename='uploads/' ~ foto['soubor']) }}')">
-                            <img src="{{ url_for('static', filename='uploads/' ~ foto['soubor']) }}" class="w-full h-full object-cover">
+                            <img src="{{ url_for('static', filename='uploads/' + foto['soubor']) }}" class="w-full h-full object-cover">
                         </div>
                         {% endfor %}
                     </div>
@@ -89,8 +106,11 @@
                             </div>
                         </div>
 
-                        {% if session.get('logged_in') %}
-                        <a href="{{ url_for('smazat', id=auto['id']) }}" onclick="return confirm('Opravdu nenávratně smazat?');" class="block w-full text-center text-red-500 border border-red-100 hover:bg-red-50 py-3 rounded-sm transition text-xs font-bold uppercase tracking-widest mt-4"><i class="fa-solid fa-trash mr-2"></i> Smazat inzerát</a>
+                        {% if session.get('user_id') == auto['user_id'] %}
+                        <div class="mt-4 flex gap-2">
+                            <a href="{{ url_for('upravit', id=auto['id']) }}" class="flex-1 text-center bg-btn text-white py-3 rounded text-xs font-bold uppercase hover:opacity-90">Upravit</a>
+                            <a href="{{ url_for('smazat', id=auto['id']) }}" onclick="return confirm('Opravdu nenávratně smazat?');" class="flex-1 text-center border border-red-500 text-red-500 py-3 rounded text-xs font-bold uppercase hover:bg-red-50">Smazat</a>
+                        </div>
                         {% endif %}
                     </div>
                 </div>
@@ -108,7 +128,6 @@
                             <div class="flex justify-between py-3 border-b border-gray-100"><span class="text-gray-500">VIN</span><span class="font-bold text-dark">{{ auto['vin'] }}</span></div>
                         </div>
                     </div>
-
                     <div>
                         <h3 class="text-lg font-bold text-dark uppercase tracking-widest mb-6 border-l-4 border-accent pl-4">Specifikace vozu</h3>
                         <div class="space-y-0 text-sm">
@@ -119,7 +138,6 @@
                             <div class="flex justify-between py-3 border-b border-gray-100"><span class="text-gray-500">Počet míst</span><span class="font-bold text-dark">{{ auto['mista'] }}</span></div>
                         </div>
                     </div>
-
                     <div>
                         <h3 class="text-lg font-bold text-dark uppercase tracking-widest mb-6 border-l-4 border-accent pl-4">Pohon a motor</h3>
                         <div class="space-y-0 text-sm">
@@ -131,7 +149,6 @@
                             <div class="flex justify-between py-3 border-b border-gray-100"><span class="text-gray-500">Spotřeba</span><span class="font-bold text-dark">{{ auto['spotreba'] }} l/100 km</span></div>
                         </div>
                     </div>
-
                     <div>
                         <h3 class="text-lg font-bold text-dark uppercase tracking-widest mb-6 border-l-4 border-accent pl-4">Historie a původ</h3>
                         <div class="space-y-0 text-sm">
@@ -165,10 +182,7 @@
 
         </div>
     </main>
-    <script>
-        function changeImage(src) {
-            document.getElementById('main-image').src = src;
-        }
-    </script>
+    <script>function changeImage(src) { document.getElementById('main-image').src = src; }</script>
+    <footer class="bg-dark text-white pt-20 pb-10 mt-auto border-t border-gray-800"><div class="container mx-auto px-6 max-w-7xl"><p class="text-xs text-gray-500 uppercase tracking-widest">&copy; 2024 Autobazar Projekt.</p></div></footer>
 </body>
 </html>

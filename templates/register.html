@@ -10,7 +10,7 @@
       gtag('config', 'G-S1YQ2TYJE7');
     </script>
     <meta charset="UTF-8">
-    <title>Přihlášení</title>
+    <title>Registrace</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = { theme: { extend: { colors: { dark: '#1a1a1a', accent: '#a78bfa', btn: '#9f9ff8' }, fontFamily: { sans: ['Poppins', 'sans-serif'] } } } }
@@ -19,24 +19,14 @@
 </head>
 <body class="bg-gray-100 font-sans min-h-screen flex items-center justify-center">
     <div class="bg-white p-10 rounded-lg shadow-xl w-full max-w-sm">
-        <h1 class="text-2xl font-bold text-center text-dark mb-6 uppercase tracking-widest">Přihlášení</h1>
-        
-        {% with messages = get_flashed_messages(with_categories=true) %}
-          {% if messages %}
-            {% for category, message in messages %}
-              <div class="mb-4 p-3 rounded text-xs font-bold text-center {{ 'bg-green-100 text-green-700' if category == 'success' else 'bg-red-100 text-red-700' }}">
-                {{ message }}
-              </div>
-            {% endfor %}
-          {% endif %}
-        {% endwith %}
-
+        <h1 class="text-2xl font-bold text-center text-dark mb-6 uppercase tracking-widest">Registrace</h1>
         <form method="POST" class="space-y-4">
             <input type="text" name="username" placeholder="Uživatelské jméno" required class="w-full border p-3 rounded bg-gray-50">
+            <input type="email" name="email" placeholder="Email" required class="w-full border p-3 rounded bg-gray-50">
             <input type="password" name="password" placeholder="Heslo" required class="w-full border p-3 rounded bg-gray-50">
-            <button type="submit" class="w-full bg-dark text-white font-bold py-3 rounded hover:bg-black transition uppercase">Přihlásit se</button>
+            <button type="submit" class="w-full bg-dark text-white font-bold py-3 rounded hover:bg-black transition uppercase">Vytvořit účet</button>
         </form>
-        <p class="text-center text-xs mt-4 text-gray-400">Nemáte účet? <a href="{{ url_for('register') }}" class="text-dark font-bold">Registrovat se</a></p>
+        <p class="text-center text-xs mt-4 text-gray-400">Již máte účet? <a href="{{ url_for('login') }}" class="text-dark font-bold">Přihlásit se</a></p>
     </div>
 </body>
 </html>

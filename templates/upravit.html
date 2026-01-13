@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-S1YQ2TYJE7"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-S1YQ2TYJE7');
+    </script>
+    <meta charset="UTF-8">
+    <title>Upravit inzerát | Autobazar</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: { dark: '#1a1a1a', accent: '#a78bfa', btn: '#9f9ff8' },
+                    fontFamily: { sans: ['Poppins', 'sans-serif'] }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style> body { background-color: #f8f9fa; } .custom-radio { accent-color: #1a1a1a; } </style>
+</head>
+<body class="text-gray-800 font-sans min-h-screen flex flex-col">
+
+    <header class="bg-white py-6 px-6 border-b border-gray-200 sticky top-0 z-50 shadow-sm">
+        <nav class="container mx-auto max-w-7xl flex justify-between items-center">
+            <a href="{{ url_for('index') }}" class="text-xl font-bold text-accent uppercase tracking-widest">Autobazar</a>
+            <div class="flex items-center space-x-6 text-sm font-semibold uppercase tracking-wide">
+                <a href="{{ url_for('inzeraty') }}" class="text-gray-600 hover:text-black transition">Nabídka vozů</a>
+                {% if session.get('user_id') %}
+                    <a href="{{ url_for('pridat') }}" class="text-gray-600 hover:text-black transition"><i class="fa-solid fa-plus mr-1"></i> Prodat</a>
+                    <a href="{{ url_for('moje_inzeraty') }}" class="text-gray-600 hover:text-black transition"><i class="fa-solid fa-list mr-1"></i> Moje</a>
+                    <div class="h-6 w-px bg-gray-300 mx-2"></div>
+                    <div class="flex items-center gap-3">
+                        <span class="text-xs text-accent normal-case font-bold bg-gray-50 px-2 py-1 rounded">{{ session['username'] }}</span>
+                        <a href="{{ url_for('logout') }}" class="text-red-500 hover:text-red-700 transition"><i class="fa-solid fa-right-from-bracket"></i></a>
+                    </div>
+                {% else %}
+                    <a href="{{ url_for('login') }}" class="text-gray-600 hover:text-black transition">Přihlásit</a>
+                {% endif %}
+            </div>
+        </nav>
+    </header>
+
+    <main class="flex-grow container mx-auto py-12 px-6 max-w-4xl">
+        <div class="bg-white p-8 md:p-12 rounded-lg shadow-sm">
+            <div class="flex justify-between items-center mb-8">
+                <div>
+                    <h1 class="text-2xl font-bold text-dark uppercase tracking-widest mb-2">Upravit inzerát</h1>
+                    <p class="text-sm text-gray-500">Změňte údaje o vozidle.</p>
+                </div>
+                <a href="{{ url_for('detail', id=auto['id']) }}" class="text-sm text-gray-400 hover:text-dark transition">
+                    <i class="fa-solid fa-arrow-left mr-1"></i> Zpět na detail
+                </a>
+            </div>
+            
+            <form action="{{ url_for('upravit', id=auto['id']) }}" method="POST" class="space-y-8">
+                
+                <h3 class="font-bold text-sm uppercase border-b pb-2">Základní údaje</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="text-xs font-bold text-gray-400 uppercase block mb-1">Značka</label>
+                        <select name="znacka" class="w-full border p-2 rounded text-sm bg-gray-50">
+                            {% for brand in ['Škoda', 'VW', 'BMW', 'Audi', 'Mercedes', 'Porsche', 'Ford', 'Toyota', 'Hyundai', 'Kia'] %}
+                            <option value="{{ brand }}" {{ 'selected' if auto['znacka'] == brand }}>{{ brand }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div>
+                        <label class="text-xs font-bold text-gray-400 uppercase block mb-1">Model</label>
+                        <input type="text" name="model" value="{{ auto['model'] }}" required class="w-full border p-2 rounded text-sm bg-gray-50">
+                    </div>
+                    <div>
+                        <label class="text-xs font-bold text-gray-400 uppercase block mb-1">Karoserie</label>
+                        <select name="kategorie" class="w-full border p-2 rounded text-sm bg-gray-50">
+                            {% for kat in ['SUV', 'Sedan', 'Combi', 'Sport', 'Pickup', 'Van', 'Hatchback'] %}
+                            <option value="{{ kat }}" {{ 'selected' if auto['kategorie'] == kat }}>{{ kat }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div>
+                        <label class="text-xs font-bold text-gray-400 uppercase block mb-1">Cena (Kč)</label>
+                        <input type="number" name="cena" value="{{ auto['cena'] }}" required class="w-full border p-2 rounded text-sm bg-gray-50">
+                    </div>
+                </div>
+
+                <h3 class="font-bold text-sm uppercase border-b pb-2 pt-4">Technické parametry</h3>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div><label class="text-xs font-bold text-gray-400 uppercase block mb-1">Rok</label><input type="number" name="rok" value="{{ auto['rok'] }}" required class="w-full border p-2 rounded text-sm bg-gray-50"></div>
+                    <div><label class="text-xs font-bold text-gray-400 uppercase block mb-1">Najeto (km)</label><input type="number" name="km" value="{{ auto['km'] }}" required class="w-full border p-2 rounded text-sm bg-gray-50"></div>
+                    <div><label class="text-xs font-bold text-gray-400 uppercase block mb-1">Výkon (kW)</label><input type="number" name="vykon" value="{{ auto['vykon'] }}" class="w-full border p-2 rounded text-sm bg-gray-50"></div>
+                    <div><label class="text-xs font-bold text-gray-400 uppercase block mb-1">Objem</label><input type="text" name="objem" value="{{ auto['objem'] }}" class="w-full border p-2 rounded text-sm bg-gray-50"></div>
+                    <div><label class="text-xs font-bold text-gray-400 uppercase block mb-1">Spotřeba (l)</label><input type="text" name="spotreba" value="{{ auto['spotreba'] }}" class="w-full border p-2 rounded text-sm bg-gray-50"></div>
+                    <div><label class="text-xs font-bold text-gray-400 uppercase block mb-1">Emisní norma</label><input type="text" name="emise" value="{{ auto['emise'] }}" class="w-full border p-2 rounded text-sm bg-gray-50"></div>
+                    <div class="md:col-span-2">
+                        <label class="text-xs font-bold text-gray-400 uppercase block mb-1">Převodovka</label>
+                        <select name="prevodovka" class="w-full border p-2 rounded text-sm bg-gray-50">
+                            <option value="Manuální" {{ 'selected' if auto['prevodovka'] == 'Manuální' }}>Manuální</option>
+                            <option value="Automatická" {{ 'selected' if auto['prevodovka'] == 'Automatická' }}>Automatická</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="py-2">
+                    <label class="text-xs font-bold text-gray-400 uppercase block mb-2">Palivo</label>
+                    <div class="flex gap-4">
+                        <label class="flex items-center"><input type="radio" name="palivo" value="Benzín" class="custom-radio mr-2" {{ 'checked' if auto['palivo'] == 'Benzín' }}><span class="text-sm">Benzín</span></label>
+                        <label class="flex items-center"><input type="radio" name="palivo" value="Nafta" class="custom-radio mr-2" {{ 'checked' if auto['palivo'] == 'Nafta' }}><span class="text-sm">Nafta</span></label>
+                        <label class="flex items-center"><input type="radio" name="palivo" value="Elektro" class="custom-radio mr-2" {{ 'checked' if auto['palivo'] == 'Elektro' }}><span class="text-sm">Elektro</span></label>
+                    </div>
+                </div>
+
+                <h3 class="font-bold text-sm uppercase border-b pb-2 pt-4">Detailní specifikace</h3>
+                <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+                    <div><label class="text-xs font-bold text-gray-400 uppercase block mb-1">Barva</label><input type="text" name="barva" value="{{ auto['barva'] }}" class="w-full border p-2 rounded text-sm bg-gray-50"></div>
+                    <div><label class="text-xs font-bold text-gray-400 uppercase block mb-1">Počet dveří</label><input type="number" name="dvere" value="{{ auto['dvere'] }}" class="w-full border p-2 rounded text-sm bg-gray-50"></div>
+                    <div><label class="text-xs font-bold text-gray-400 uppercase block mb-1">Počet míst</label><input type="number" name="mista" value="{{ auto['mista'] }}" class="w-full border p-2 rounded text-sm bg-gray-50"></div>
+                    <div><label class="text-xs font-bold text-gray-400 uppercase block mb-1">Počet airbagů</label><input type="number" name="airbagy" value="{{ auto['airbagy'] }}" class="w-full border p-2 rounded text-sm bg-gray-50"></div>
+                    <div><label class="text-xs font-bold text-gray-400 uppercase block mb-1">VIN kód</label><input type="text" name="vin" value="{{ auto['vin'] }}" class="w-full border p-2 rounded text-sm bg-gray-50"></div>
+                    <div><label class="text-xs font-bold text-gray-400 uppercase block mb-1">STK platná do</label><input type="text" name="stk" value="{{ auto['stk'] }}" class="w-full border p-2 rounded text-sm bg-gray-50"></div>
+                    <div><label class="text-xs font-bold text-gray-400 uppercase block mb-1">Země původu</label><input type="text" name="zeme" value="{{ auto['zeme'] }}" class="w-full border p-2 rounded text-sm bg-gray-50"></div>
+                    
+                    <div>
+                        <label class="text-xs font-bold text-gray-400 uppercase block mb-1">První majitel</label>
+                        <select name="majitel" class="w-full border p-2 rounded text-sm bg-gray-50">
+                            <option value="Ano" {{ 'selected' if auto['majitel'] == 'Ano' }}>Ano</option>
+                            <option value="Ne" {{ 'selected' if auto['majitel'] == 'Ne' }}>Ne</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="text-xs font-bold text-gray-400 uppercase block mb-1">Servisní knížka</label>
+                        <select name="serviska" class="w-full border p-2 rounded text-sm bg-gray-50">
+                            <option value="Ano" {{ 'selected' if auto['serviska'] == 'Ano' }}>Ano</option>
+                            <option value="Ne" {{ 'selected' if auto['serviska'] == 'Ne' }}>Ne</option>
+                        </select>
+                    </div>
+                </div>
+
+                <h3 class="font-bold text-sm uppercase border-b pb-2 pt-4">Výbava a popis</h3>
+                <div>
+                    <label class="text-xs font-bold text-gray-400 uppercase block mb-2">Seznam výbavy (oddělte čárkou)</label>
+                    <textarea name="vybava_text" rows="3" class="w-full border p-3 rounded text-sm bg-gray-50">{{ auto['vybava_text'] }}</textarea>
+                </div>
+                <div>
+                    <label class="text-xs font-bold text-gray-400 uppercase block mb-2">Popis prodejce</label>
+                    <textarea name="popis" rows="5" class="w-full border p-3 rounded text-sm bg-gray-50">{{ auto['popis'] }}</textarea>
+                </div>
+
+                <h3 class="font-bold text-sm uppercase border-b pb-2 pt-4 text-accent">Kontakt na prodejce</h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 bg-gray-50 p-4 rounded border border-gray-100">
+                    <div>
+                        <label class="text-xs font-bold text-gray-400 uppercase block mb-1">Jméno</label>
+                        <input type="text" name="prodejce_jmeno" value="{{ auto['prodejce_jmeno'] }}" class="w-full border p-2 rounded text-sm bg-white">
+                    </div>
+                    <div>
+                        <label class="text-xs font-bold text-gray-400 uppercase block mb-1">Telefon</label>
+                        <input type="text" name="prodejce_tel" value="{{ auto['prodejce_tel'] }}" class="w-full border p-2 rounded text-sm bg-white">
+                    </div>
+                    <div>
+                        <label class="text-xs font-bold text-gray-400 uppercase block mb-1">Email</label>
+                        <input type="email" name="prodejce_email" value="{{ auto['prodejce_email'] }}" class="w-full border p-2 rounded text-sm bg-white">
+                    </div>
+                </div>
+
+                <div class="flex gap-4 pt-6">
+                    <button type="submit" class="w-full bg-dark text-white font-bold py-4 rounded shadow-lg hover:bg-black transition uppercase tracking-widest text-sm">
+                        Uložit změny
+                    </button>
+                    <a href="{{ url_for('detail', id=auto['id']) }}" class="w-1/3 text-center border-2 border-gray-200 text-gray-600 font-bold py-4 rounded hover:bg-gray-100 transition uppercase tracking-widest text-sm flex items-center justify-center">
+                        Zrušit
+                    </a>
+                </div>
+            </form>
+        </div>
+    </main>
+
+    <footer class="bg-dark text-white pt-20 pb-10 mt-auto border-t border-gray-800">
+        <div class="container mx-auto px-6 max-w-7xl">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
+                <div>
+                    <a href="{{ url_for('index') }}" class="text-2xl font-bold text-accent uppercase tracking-widest block mb-6">
+                        Autobazar
+                    </a>
+                    <p class="text-gray-400 text-sm leading-relaxed mb-6">
+                        Váš spolehlivý partner při nákupu a prodeji vozů.
+                    </p>
+                </div>
+                <div>
+                    <h4 class="text-white font-bold uppercase tracking-widest mb-6">Navigace</h4>
+                    <ul class="space-y-4 text-sm text-gray-400">
+                        <li><a href="{{ url_for('index') }}" class="hover:text-accent transition">Domů</a></li>
+                        <li><a href="{{ url_for('inzeraty') }}" class="hover:text-accent transition">Nabídka</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="border-t border-gray-800 pt-8 text-xs text-gray-500 uppercase tracking-widest">
+                <p>&copy; 2024 Autobazar Projekt.</p>
+            </div>
+        </div>
+    </footer>
+
+</body>
+</html>
