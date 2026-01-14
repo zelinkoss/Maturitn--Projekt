@@ -6,11 +6,14 @@
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
       gtag('js', new Date());
-
       gtag('config', 'G-S1YQ2TYJE7');
     </script>
+
     <meta charset="UTF-8">
     <title>{{ auto['znacka'] }} {{ auto['model'] }} | Detail</title>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -27,11 +30,13 @@
 </head>
 <body class="bg-white text-gray-800 font-sans min-h-screen flex flex-col">
 
-    <header class="bg-white py-6 px-6 border-b border-gray-200 sticky top-0 z-50 shadow-sm">
+    <header class="bg-white py-6 px-6 border-b border-gray-200 sticky top-0 z-50 shadow-sm navbar-anim" style="opacity: 0;">
         <nav class="container mx-auto max-w-7xl flex justify-between items-center">
-            <a href="{{ url_for('index') }}" class="text-xl font-bold text-accent uppercase tracking-widest">Autobazar</a>
+            <a href="{{ url_for('index') }}" class="text-xl font-bold text-accent uppercase tracking-widest hover:text-dark transition">Autobazar</a>
+            
             <div class="flex items-center space-x-6 text-sm font-semibold uppercase tracking-wide">
                 <a href="{{ url_for('inzeraty') }}" class="text-gray-600 hover:text-black transition">Nabídka vozů</a>
+                
                 {% if session.get('user_id') %}
                     <a href="{{ url_for('pridat') }}" class="text-gray-600 hover:text-black transition"><i class="fa-solid fa-plus mr-1"></i> Prodat</a>
                     <a href="{{ url_for('moje_inzeraty') }}" class="text-gray-600 hover:text-black transition"><i class="fa-solid fa-list mr-1"></i> Moje</a>
@@ -40,8 +45,6 @@
                         <span class="text-xs text-accent normal-case font-bold bg-gray-50 px-2 py-1 rounded">{{ session['username'] }}</span>
                         <a href="{{ url_for('logout') }}" class="text-red-500 hover:text-red-700 transition"><i class="fa-solid fa-right-from-bracket"></i></a>
                     </div>
-                {% else %}
-                    <a href="{{ url_for('login') }}" class="text-gray-600 hover:text-black transition">Přihlásit</a>
                 {% endif %}
             </div>
         </nav>
@@ -52,7 +55,7 @@
             
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-12 items-start mb-20">
                 
-                <div class="lg:col-span-2">
+                <div class="lg:col-span-2 gallery-anim" style="opacity: 0; transform: translateX(-30px);">
                     <div class="bg-gray-100 rounded-sm overflow-hidden shadow-sm relative group aspect-video mb-4">
                         <img id="main-image" src="{{ url_for('static', filename='uploads/' + auto['obrazek']) }}" alt="{{ auto['znacka'] }}" class="w-full h-full object-cover transition duration-300">
                         <div class="absolute top-4 left-4 bg-dark text-white text-xs font-bold px-3 py-1 uppercase tracking-widest">{{ auto['kategorie'] }}</div>
@@ -69,7 +72,7 @@
                     {% endif %}
                 </div>
 
-                <div class="flex flex-col h-full sticky top-6">
+                <div class="flex flex-col h-full sticky top-6 info-anim" style="opacity: 0; transform: translateX(30px);">
                     <h1 class="text-4xl font-bold text-dark mb-2 leading-tight uppercase">{{ auto['znacka'] }} <span class="text-gray-400 block text-2xl mt-1">{{ auto['model'] }}</span></h1>
                     <div class="text-4xl font-bold text-accent mb-8 mt-2">{{ auto['cena'] }} Kč</div>
                     
@@ -93,7 +96,6 @@
                                     <p class="font-bold text-lg">{{ auto['prodejce_jmeno'] }}</p>
                                 </div>
                             </div>
-                            
                             <div class="space-y-3 border-t border-gray-700 pt-4">
                                 <a href="tel:{{ auto['prodejce_tel'] }}" class="flex items-center gap-3 hover:text-accent transition group">
                                     <i class="fa-solid fa-phone text-accent group-hover:scale-110 transition"></i>
@@ -106,7 +108,7 @@
                             </div>
                         </div>
 
-                        {% if session.get('user_id') == auto['user_id'] %}
+                        {% if session.get('user_id') == auto['user_id'] or session.get('is_admin') %}
                         <div class="mt-4 flex gap-2">
                             <a href="{{ url_for('upravit', id=auto['id']) }}" class="flex-1 text-center bg-btn text-white py-3 rounded text-xs font-bold uppercase hover:opacity-90">Upravit</a>
                             <a href="{{ url_for('smazat', id=auto['id']) }}" onclick="return confirm('Opravdu nenávratně smazat?');" class="flex-1 text-center border border-red-500 text-red-500 py-3 rounded text-xs font-bold uppercase hover:bg-red-50">Smazat</a>
@@ -116,7 +118,7 @@
                 </div>
             </div>
 
-            <div class="border-t border-gray-100 pt-16">
+            <div class="border-t border-gray-100 pt-16 details-anim" style="opacity: 0; transform: translateY(30px);">
                 <h2 class="text-2xl font-bold text-dark uppercase tracking-widest mb-10 text-center">Detailní informace o voze</h2>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-x-16 gap-y-12">
                      <div>
@@ -134,19 +136,16 @@
                             <div class="flex justify-between py-3 border-b border-gray-100"><span class="text-gray-500">Karoserie</span><span class="font-bold text-dark">{{ auto['kategorie'] }}</span></div>
                             <div class="flex justify-between py-3 border-b border-gray-100"><span class="text-gray-500">Barva</span><span class="font-bold text-dark">{{ auto['barva'] }}</span></div>
                             <div class="flex justify-between py-3 border-b border-gray-100"><span class="text-gray-500">Počet airbagů</span><span class="font-bold text-dark">{{ auto['airbagy'] }}</span></div>
-                            <div class="flex justify-between py-3 border-b border-gray-100"><span class="text-gray-500">Počet dveří</span><span class="font-bold text-dark">{{ auto['dvere'] }}</span></div>
-                            <div class="flex justify-between py-3 border-b border-gray-100"><span class="text-gray-500">Počet míst</span><span class="font-bold text-dark">{{ auto['mista'] }}</span></div>
+                            <div class="flex justify-between py-3 border-b border-gray-100"><span class="text-gray-500">Počet dveří / Míst</span><span class="font-bold text-dark">{{ auto['dvere'] }} / {{ auto['mista'] }}</span></div>
                         </div>
                     </div>
                     <div>
                         <h3 class="text-lg font-bold text-dark uppercase tracking-widest mb-6 border-l-4 border-accent pl-4">Pohon a motor</h3>
                         <div class="space-y-0 text-sm">
-                            <div class="flex justify-between py-3 border-b border-gray-100"><span class="text-gray-500">Palivo</span><span class="font-bold text-dark">{{ auto['palivo'] }}</span></div>
-                            <div class="flex justify-between py-3 border-b border-gray-100"><span class="text-gray-500">Objem</span><span class="font-bold text-dark">{{ auto['objem'] }}</span></div>
+                            <div class="flex justify-between py-3 border-b border-gray-100"><span class="text-gray-500">Palivo / Objem</span><span class="font-bold text-dark">{{ auto['palivo'] }} / {{ auto['objem'] }}</span></div>
                             <div class="flex justify-between py-3 border-b border-gray-100"><span class="text-gray-500">Výkon</span><span class="font-bold text-dark">{{ auto['vykon'] }} kW</span></div>
                             <div class="flex justify-between py-3 border-b border-gray-100"><span class="text-gray-500">Převodovka</span><span class="font-bold text-dark">{{ auto['prevodovka'] }}</span></div>
-                            <div class="flex justify-between py-3 border-b border-gray-100"><span class="text-gray-500">Emisní norma</span><span class="font-bold text-dark">{{ auto['emise'] }}</span></div>
-                            <div class="flex justify-between py-3 border-b border-gray-100"><span class="text-gray-500">Spotřeba</span><span class="font-bold text-dark">{{ auto['spotreba'] }} l/100 km</span></div>
+                            <div class="flex justify-between py-3 border-b border-gray-100"><span class="text-gray-500">Emise / Spotřeba</span><span class="font-bold text-dark">{{ auto['emise'] }} / {{ auto['spotreba'] }} l/100km</span></div>
                         </div>
                     </div>
                     <div>
@@ -154,14 +153,13 @@
                         <div class="space-y-0 text-sm">
                             <div class="flex justify-between py-3 border-b border-gray-100"><span class="text-gray-500">1. majitel</span><span class="font-bold text-dark">{{ auto['majitel'] }}</span></div>
                             <div class="flex justify-between py-3 border-b border-gray-100"><span class="text-gray-500">Země původu</span><span class="font-bold text-dark">{{ auto['zeme'] }}</span></div>
-                            <div class="flex justify-between py-3 border-b border-gray-100"><span class="text-gray-500">STK platná do</span><span class="font-bold text-dark">{{ auto['stk'] }}</span></div>
-                            <div class="flex justify-between py-3 border-b border-gray-100"><span class="text-gray-500">Servisní knížka</span><span class="font-bold text-dark">{{ auto['serviska'] }}</span></div>
+                            <div class="flex justify-between py-3 border-b border-gray-100"><span class="text-gray-500">STK / Serviska</span><span class="font-bold text-dark">{{ auto['stk'] }} / {{ auto['serviska'] }}</span></div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div class="mt-16 grid grid-cols-1 lg:grid-cols-2 gap-16 border-t border-gray-100 pt-12">
+            <div class="mt-16 grid grid-cols-1 lg:grid-cols-2 gap-16 border-t border-gray-100 pt-12 details-anim" style="opacity: 0; transform: translateY(30px);">
                 <div>
                     <h3 class="text-lg font-bold text-dark uppercase tracking-widest mb-6 border-l-4 border-accent pl-4">Výbava vozu</h3>
                     <ul class="grid grid-cols-1 sm:grid-cols-2 gap-y-3 gap-x-4 text-sm text-gray-600">
@@ -182,7 +180,21 @@
 
         </div>
     </main>
-    <script>function changeImage(src) { document.getElementById('main-image').src = src; }</script>
-    <footer class="bg-dark text-white pt-20 pb-10 mt-auto border-t border-gray-800"><div class="container mx-auto px-6 max-w-7xl"><p class="text-xs text-gray-500 uppercase tracking-widest">&copy; 2024 Autobazar Projekt.</p></div></footer>
+
+    <footer class="bg-dark text-white pt-20 pb-10 mt-auto border-t border-gray-800">
+        <div class="container mx-auto px-6 max-w-7xl">
+            <p class="text-xs text-gray-500 uppercase tracking-widest">&copy; 2024 Autobazar Projekt.</p>
+        </div>
+    </footer>
+    
+    <script>
+        function changeImage(src) { document.getElementById('main-image').src = src; }
+        
+        // GSAP ANIMACE
+        gsap.to(".navbar-anim", { opacity: 1, duration: 0.8 });
+        gsap.to(".gallery-anim", { opacity: 1, x: 0, duration: 0.8, delay: 0.2, ease: "power3.out" });
+        gsap.to(".info-anim", { opacity: 1, x: 0, duration: 0.8, delay: 0.4, ease: "power3.out" });
+        gsap.to(".details-anim", { opacity: 1, y: 0, duration: 0.8, delay: 0.6, stagger: 0.2, ease: "power3.out" });
+    </script>
 </body>
 </html>
