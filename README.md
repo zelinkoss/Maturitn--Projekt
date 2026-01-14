@@ -26,3 +26,4 @@ Aplikace umožní prohlížet, přidávat a spravovat nabídky automobilů pomoc
 
 [Dokumentace_maturita_2026_zelinka.docx](https://github.com/user-attachments/files/24626431/Dokumentace_maturita_2026_zelinka.docx)
 
+https://autobazar.pythonanywhere.com/inzeraty
